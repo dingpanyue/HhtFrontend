@@ -395,7 +395,7 @@ apiready = function(){
         pingpp.setDebugMode({enabled:true});
         var params = {
           charge:chargeJSONString,
-          scheme:'xxt'
+          scheme:'HhtFrontend'
         };
         pingpp.createPayment(params, function(ret, err) {
             if (ret.result == "success") {

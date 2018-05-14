@@ -478,7 +478,7 @@ apiready = function(){
       function arousePayApp(chargeJSONString){
         var params = {
           charge:chargeJSONString,
-          scheme:'xxt'
+          scheme:'HhtFrontend'
         }
         pingpp.createPayment(params, function(ret, err) {
             console.log('唤起应用支付');

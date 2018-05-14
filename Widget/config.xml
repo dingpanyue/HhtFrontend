@@ -24,11 +24,11 @@
 
 	<preference name="smartUpdate" value="false" />
 
-  <preference name="urlScheme" value="xxt" />
+  <preference name="urlScheme" value="HhtFrontend" />
 
   <preference name="urlScheme" value="wx6f1e0cbc3d6bba69" />
 
-  <preference name="querySchemes" value="weixin,alipay,xxt"/>
+  <preference name="querySchemes" value="weixin,alipay,HhtFrontend"/>
 
 	<preference name="debug" value="false"/>
 
