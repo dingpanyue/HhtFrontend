@@ -46,6 +46,9 @@ apiready = function(){
   //两个全局变量，是否再次渲染服务和附近
   var isServicesRendering = true;
   var isNearbyRendering = true;
+  var canServicesScroll = false;
+  var canAssignmentsScroll = false;
+  var classificationTemp = '';
   //取缓存
   try {var token = JSON.parse(api.getPrefs({sync: true,key: 'user_login_status'})).access_token;} catch (e) {console.log(JSON.stringify(e));};
 
@@ -322,6 +325,23 @@ apiready = function(){
           jq('.app_tab_swiper_li' + this.activeIndex).css('color','#39f');
 
           tab_swiper.slideTo(this.activeIndex,300,true);
+          if(this.activeIndex === 0 && isServicesRendering){
+            api.showProgress({title: '加载中...',modal: false});
+            runAllEntrust(area_Id_S);
+          }
+          if(this.activeIndex === 1){
+            api.showProgress({title: '加载中...',modal: false});
+            servicesRendering();
+          }
+          if(this.activeIndex === 2 && isNearbyRendering){
+            api.showProgress({
+                title: '加载中...',
+                modal: false
+            });
+            nearbyRendering(1,'assignments');
+            isNearbyRendering = false;
+          }
+
 
         }
       }
@@ -354,8 +374,13 @@ apiready = function(){
         area_Id_view = '&area_id=' + area_Id_view;
         area_Id_S = area_Id;
       }
+      var classification = jq('header').attr('classification');
+      var classificationString = '';
+      if (classification != undefined && classification != '') {
+        classificationString = '&classification=' + classification;
+      }
 
-      var xhr_url = "http://47.104.73.41/api/mobile-terminal/rest/v1/assignments/index?status=1" + area_Id_view + "&page=1";
+      var xhr_url = "http://47.104.73.41/api/mobile-terminal/rest/v1/assignments/index?status=1" + area_Id_view + "&page=1" + classificationString;
 
       var settings = {
         "async": true,
@@ -398,6 +423,9 @@ apiready = function(){
             }
           }
           entrust_next_page_url = req.response.next_page_url;
+          if (entrust_next_page_url != null) {
+            canAssignmentsScroll = true;
+          }
         }else{
           jq('#app_tab_page_swiper_li0_node').append('<div>服务器返回错误</div>');
           api.hideProgress();
@@ -410,8 +438,10 @@ apiready = function(){
     function runAllEntrustPaging(){
 
       var xhr_url = '';
+      console.log(entrust_next_page_url);
       if(entrust_next_page_url === null){toast.hide();return;}else{
-        xhr_url = entrust_next_page_url + '&area_id=' + location_inf.demand_area_id;
+        xhr_url = entrust_next_page_url + '&area_id=' + area_Id_S + classificationTemp;
+        console.log(xhr_url);
       }
       var settings = {
         "async": true,
@@ -428,6 +458,7 @@ apiready = function(){
       jq.ajax(settings).done(function (req){
         if(req.message === 'success'){
           var data = req.response.data;
+          console.log(data.length);
           if(data === '' || data.length === 0){
             jq('#app_tab_page_swiper_li0_node').html('<div class="app_inf_null">暂无信息</div>');
             api.hideProgress();
@@ -464,10 +495,17 @@ apiready = function(){
 
     //服务的渲染
     function servicesRendering(){
+      var classification = jq('header').attr('classification');
+      var classificationString = '';
+      if (classification != undefined && classification != '') {
+        classificationString = '&classification=' + classification;
+        classificationTemp = classificationString;
+      }
+
       var settings = {
         "async": true,
         "crossDomain": true,
-        "url": "http://47.104.73.41/api/mobile-terminal/rest/v1/services/index?page=1",
+        "url": "http://47.104.73.41/api/mobile-terminal/rest/v1/services/index?page=1" + classificationString + "&status=1",
         "method": "GET",
         "headers": {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -479,6 +517,8 @@ apiready = function(){
       jq.ajax(settings).done(function (req) {
         if(req.message === 'success'){
           var data = req.response.data;
+
+          jq('#app_tab_page_swiper_li1_node').html('');
 
           //循环追加的HTML字符串
           for(var i = 0;i < data.length;i++){
@@ -492,12 +532,14 @@ apiready = function(){
               '<img info_id="'+data[i].user_id+'" class="list_left_img" src="'+user_img+'" />'+
               '<div user_name="'+data[i].user.name+'" user_img="'+user_img+'" user_id="'+data[i].user_id+'" service_order_id="'+data[i].id+'" class="list_right_title">'+data[i].title+'</div>'+
             '</div>';
-
             jq('#app_tab_page_swiper_li1_node').append(html_str);
-            isServicesRendering = false;
-            api.hideProgress();
           }
+          isServicesRendering = false;
+          api.hideProgress();
           server_next_page_url = req.response.next_page_url;
+          if(server_next_page_url != null) {
+            canServicesScroll = true;
+          }
         }else{
           jq('#app_tab_page_swiper_li1_node').append('<div>服务器返回错误</div>');
           api.hideProgress();
@@ -508,7 +550,7 @@ apiready = function(){
     function servicesRenderingPaging(){
       var xhr_url = '';
       if(server_next_page_url === null){toast.hide();return;}else{
-        xhr_url = server_next_page_url;
+        xhr_url = server_next_page_url + classificationTemp + "&status=1";
       }
       var settings = {
         "async": true,
@@ -525,7 +567,7 @@ apiready = function(){
       jq.ajax(settings).done(function (req) {
         if(req.message === 'success'){
           var data = req.response.data;
-
+          console.log(data.length);
           //循环追加的HTML字符串
           for(var i = 0;i < data.length;i++){
             var user_img = '';
@@ -540,11 +582,13 @@ apiready = function(){
             '</div>';
 
             jq('#app_tab_page_swiper_li1_node').append(html_str);
-
-            api.hideProgress();
           }
+          api.hideProgress();
           toast.hide();
           server_next_page_url = req.response.next_page_url;
+          if (server_next_page_url != null) {
+            canServicesScroll = true;
+          }
         }else{
           jq('#app_tab_page_swiper_li1_node').append('<div>服务器返回错误</div>');
           api.hideProgress();
@@ -691,12 +735,23 @@ apiready = function(){
     });
 
     //监听homePage页面的分类点击事件，渲染委托列表
-    function runAllEntrust2(area_Id){
+    function runAllEntrust2(area_Id, area_Id_S){
+
+      if(area_Id_S === undefined || area_Id_S === ''){
+        area_param = '';
+      }else{
+        area_param = '&area_id=' + area_Id_S;
+      }
+
       var area_Id_view = area_Id;
       if(area_Id_view === undefined || area_Id_view === ''){
         area_Id_view = '';
       }else{
+        var classificationData = getLocalMsg('app_serve_category');
+        jq('header').attr('classification', area_Id_view);
+        jq('header').text(classificationData[area_Id_view - 1].name);
         area_Id_view = '&classification=' + area_Id_view;
+        classificationTemp = area_Id_view;
       }
 
 
@@ -704,7 +759,7 @@ apiready = function(){
       var settings = {
         "async": true,
         "crossDomain": true,
-        "url": "http://47.104.73.41/api/mobile-terminal/rest/v1/assignments/index?status=1" + area_Id_view,
+        "url": "http://47.104.73.41/api/mobile-terminal/rest/v1/assignments/index?status=1" + area_Id_view + area_param,
         "method": "GET",
         "headers": {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -737,7 +792,11 @@ apiready = function(){
               '</div>';
 
               jq('#app_tab_page_swiper_li0_node').append(html_str);
-              api.hideProgress();
+            }
+            api.hideProgress();
+            entrust_next_page_url = req.response.next_page_url;
+            if(entrust_next_page_url != null) {
+              canAssignmentsScroll = true;
             }
           }
         }else{
@@ -760,7 +819,7 @@ apiready = function(){
              });
              tab_swiper.slideTo(0,300,true);
              app_tab_page.slideTo(0,300,true);
-             runAllEntrust2(select_id);
+             runAllEntrust2(select_id, area_Id_S);
         }else{
              console.log( JSON.stringify( err ) );
         }
@@ -771,20 +830,22 @@ apiready = function(){
       var node_top = jq('#app_tab_page_swiper_li0_node').children(':last-child').offset().top;
       var node_heihgt = jq('#app_tab_page_swiper_li0_node').children(':last-child').height();
       var cankaozhi = node_top + node_heihgt;
-
-      if(cankaozhi <= win_height){
+      if(cankaozhi <= win_height && canAssignmentsScroll == true){
+        console.log(1);
+        canAssignmentsScroll = false;
         toast.loading({title:"加载中",duration:4000});
         runAllEntrustPaging();
       }
     });
 
-    jq('.app_tab_page_swiper_li1').scroll(function(){//scroll
 
+    jq('.app_tab_page_swiper_li1').scroll(function(){//scroll
       var node_top = jq('#app_tab_page_swiper_li1_node').children(':last-child').offset().top;
       var node_heihgt = jq('#app_tab_page_swiper_li1_node').children(':last-child').height();
       var cankaozhi = node_top + node_heihgt;
 
-      if(cankaozhi <= win_height){
+      if(cankaozhi <= win_height && canServicesScroll==true){
+        canServicesScroll = false;
         toast.loading({title:"加载中",duration:4000});
         servicesRenderingPaging();
       }
