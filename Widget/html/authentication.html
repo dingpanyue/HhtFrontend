@@ -70,9 +70,45 @@
       var jq=jQuery.noConflict();
       var toast = new auiToast({});
       //全局用户登录信息缓存
+
+
+
       try {var token = JSON.parse(api.getPrefs({sync: true,key: 'user_login_status'})).access_token;} catch (e) {console.log(JSON.stringify(e));};
 
       jq(function(){
+
+
+          //请求数据
+          var settings = {
+              "async": true,
+              "crossDomain": true,
+              "url": "http://47.104.73.41/api/mobile-terminal/rest/v1/user/self/info",
+              "method": "GET",
+              "headers": {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": "Bearer " + token,
+                "Cache-Control": "no-cache"
+              }
+          }
+
+            jq.ajax(settings).done(function (rep) {
+                if(rep.message === 'success'){
+                  var data = rep.response;
+                  if(data.real_name != null){
+                    jq('.page_data_name').val(data.real_name);
+                  }
+                  if(data.mobile != null){
+                    jq('.page_data_phone').val(data.mobile);
+                  }
+                  if(data.card_no != null){
+                    jq('.page_data_number').val(data.card_no);
+                  }
+                } else {
+                    console.log('获取用户认证信息失败');
+                }
+            });
+
+
 
         jq('.app-goIndex').on('click',function(){api.closeWin();});
 
@@ -82,7 +118,6 @@
           var page_data_phone = jq('.page_data_phone').val();
           var page_data_number = jq('.page_data_number').val();
           if(page_data_name !== '' && page_data_phone !== '' || page_data_number !== ''){
-            console.log('asd');
             var settings = {
               "async": true,
               "crossDomain": true,
@@ -124,7 +159,7 @@
               }
             });
           }else{
-            alert('请填写完整');
+            alert('请将认证信息填写完整');
           }
         });
 
