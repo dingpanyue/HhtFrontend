@@ -32,7 +32,7 @@
 
 	<preference name="debug" value="false"/>
 
-	<preference name="statusBarAppearance" value="false"/>
+	<preference name="statusBarAppearance" value="true"/>
 
 	<permission name="readPhoneState" />
 
