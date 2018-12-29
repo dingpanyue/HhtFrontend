@@ -87,7 +87,7 @@ html,body{background-color: #fff;font-family: '微软雅黑'}
   left:0px;
   padding:10px 10px 35px 10px;
   background-color: #ececec;
-  font-size:18px;
+  font-size:10px;
 }
 /*选择图片*/
 .app-select-img{
@@ -141,18 +141,18 @@ html,body{background-color: #fff;font-family: '微软雅黑'}
 /*选择需求类型*/
 .app-select-demand-type{
   width:100%;
-  height:60px;
-  margin:20px auto 0px;
+  height:30px;
+  margin:0px auto 0px;
   background-color: #ececec;
   font-size:0px;
 }
 /*左边的提示文字*/
 .app-select-demand-type-isText{
   width:22%;
-  height:60px;
+  height:30px;
   border-right:1px solid #c0c0c0;
   text-align: center;
-  line-height: 60px;
+  line-height: 30px;
   color:#646464;
   font-size:14px;
   display:inline-block;
@@ -170,10 +170,10 @@ html,body{background-color: #fff;font-family: '微软雅黑'}
 
 .app-select-demand-type-title{
   width:60%;
-  height:60px;
+  height:30px;
   padding-left:20px;
   text-align: left;
-  line-height: 60px;
+  line-height: 30px;
   color:#333;
   display:inline-block;
   vertical-align: top;
@@ -280,9 +280,9 @@ html,body{background-color: #fff;font-family: '微软雅黑'}
 }
 #app-demand-title-ipt{
   width:100%;
-  height:50px;
+  height:25px;
   border-bottom:1px solid #c0c0c0;
-  font-size:18px;
+  font-size:10px;
   padding-left:10px;
   font-weight: bold;
 }
@@ -294,20 +294,20 @@ html,body{background-color: #fff;font-family: '微软雅黑'}
 /*需求金额*//*需求详细地址*/
 #app-demand-money-ipt,#app_demand_address_ipt,#select_time{
   width:100%;
-  height:50px;
+  height:25px;
   border-bottom:1px solid #c0c0c0;
-  font-size:14px;
+  font-size:10px;
   color:#FFA500;
   padding-left:10px;
   margin-top:20px;
 }
 #app-demand-money-ipt{
-  font-size:18px;
+  font-size:10px;
   font-weight: bold;
 }
 #app_demand_address_ipt{
   color:#333;
-  font-size:18px;
+  font-size:10px;
   font-weight: bold;
 }
 #select_time{
