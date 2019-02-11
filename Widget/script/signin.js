@@ -200,7 +200,7 @@ apiready = function(){
                 if(ret.msgcode !== 100000){
                     //重置密码成功
                     api.toast({
-                        msg: ret.message,
+                        msg: '重置密码成功',
                         duration: 2000,
                         location: 'top'
                     });
@@ -209,7 +209,11 @@ apiready = function(){
                     app_new_psw.value = '';
                     app_confirm_new_psw.value = '';
                     //关闭页面
-                    getClassDom('PasswordBack').style.display = 'none';
+                    api.openWin({
+                        name: 'signin',
+                        slidBackEnabled:false,
+                        url: '../html/signin.html'
+                    });
                 }else{
                     api.toast({
                         msg: ret.message,
