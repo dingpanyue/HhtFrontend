@@ -55,12 +55,73 @@ apiready = function(){
     },true);
 
     /*验证码按钮*/
+    var user_verification_bool_send = true;
     user_back_code_btn.addEventListener('click',function(){
-      if(user_phone_bool){
-        console.log("可以发起请求");
-      }else{
-        console.log("不可以发起请求，手机号错误");
-      }
+        if(user_phone_bool){
+            if(user_verification_bool_send){
+                //发起验证码请求
+                var sendData = 'mobile='+user_phone.value;
+                console.log(sendData);
+                api.ajax({
+                    url: 'http://47.104.73.41/api/mobile-terminal/rest/v1/send-sms',
+                    method: 'post',
+                    headers:{
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Cache-Control": "no-cache",
+                        "Postman-Token": "027e21b7-b31a-ad0e-394a-f0da4134ae39"
+                    },
+                    data: {
+                        body:sendData
+                    }
+                },function(ret, err){
+                    if (ret) {
+                        if(ret.msgcode === 200003){
+                            api.toast({
+                                msg: ret.message,
+                                duration: 4000,
+                                location: 'top'
+                            });
+                        }else{
+                            api.toast({
+                                msg: '发送成功!',
+                                duration: 4000,
+                                location: 'top'
+                            });
+                            var isSendTrueNum = 60;
+                            //之后是一个倒计时
+                            var isSendTrueTime = setInterval(function(){
+                                if(isSendTrueNum <= 1){
+                                    clearInterval(isSendTrueTime);
+                                    isSendTrueTime = null;
+                                    user_verification_bool_send = true;
+                                    getClassDom('user-back-code-btn').innerText = '获取验证码';
+                                }else{
+                                    getClassDom('user-back-code-btn').innerText = --isSendTrueNum;
+                                }
+                            },900);
+                            user_verification_bool_send = false;
+                            console.log( JSON.stringify( ret ) );
+                        }
+                    } else {
+                        console.log( JSON.stringify( err ) );
+                    }
+                });
+
+
+            }else{
+                api.toast({
+                    msg: '验证码已发送，不可多次获取!',
+                    duration: 4000,
+                    location: 'top'
+                });
+            }
+        }else{
+            api.toast({
+                msg: '手机号填写不正确！',
+                duration: 4000,
+                location: 'top'
+            });
+        }
     },true);
 
     /*验证码输入框*/
@@ -119,27 +180,58 @@ apiready = function(){
             key: 'authentication_status'
         });
 
-        //因为是模态，没有无法刷新页面，将所有Input值置为空
-        user_phone.value = '';
-        user_back_code.value = '';
-        app_new_psw.value = '';
-        app_confirm_new_psw.value = '';
+        var userInformation = "mobile="+user_phone.value+"&password="+app_new_psw.value+"&sms_code=" +  user_back_code.value;
 
-
-        /*发起ajax请求，如果成功再关闭这个页面*/
-
-
-
-        getClassDom('PasswordBack').style.display = 'none';
-
-
+        api.ajax({
+              url: 'http://47.104.73.41/api/mobile-terminal/rest/v1/reset-password',
+              method: 'post',
+              headers:{
+                  "mobile": user_phone.value,
+                  "password": app_new_psw.value,
+                  "sms_code": user_back_code.value,
+                  "Content-Type": "application/x-www-form-urlencoded",
+                  "Cache-Control": "no-cache"
+              },
+              data: {
+                  body:userInformation
+              }
+          },function(ret, err){
+            if (ret) {
+                if(ret.msgcode !== 100000){
+                    //重置密码成功
+                    api.toast({
+                        msg: ret.message,
+                        duration: 2000,
+                        location: 'top'
+                    });
+                    //因为是模态，没有无法刷新页面，将所有Input值置为空
+                    user_back_code.value = '';
+                    app_new_psw.value = '';
+                    app_confirm_new_psw.value = '';
+                    //关闭页面
+                    getClassDom('PasswordBack').style.display = 'none';
+                }else{
+                    api.toast({
+                        msg: ret.message,
+                        duration: 2000,
+                        location: 'top'
+                    });
+                    user_back_code.value = '';
+                    app_new_psw.value = '';
+                    app_confirm_new_psw.value = '';
+                }
+            } else {
+                console.log( JSON.stringify( err ) );
+            }
+          });
       }else{
-        console.log("不可提交");
+          api.toast({
+              msg: '无法提交重置密码请求,请检查您的参数',
+              duration: 2000,
+              location: 'top'
+          });
       }
     },true);
-
-
-
   })();
 
 
@@ -147,16 +239,9 @@ apiready = function(){
   /*登录遇到问题，找回密码啥的跳转页面*/
   (function(){
     getClassDom("app-top-bar-btn").addEventListener('click',function(){
-
       /*打开找回密码的模态*/
       getClassDom('PasswordBack').style.display = 'block';
-
-
-
-
-
     },true);
-
 
   })();
 
