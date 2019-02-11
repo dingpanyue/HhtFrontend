@@ -197,7 +197,7 @@ apiready = function(){
               }
           },function(ret, err){
             if (ret) {
-                if(ret.msgcode !== 100000){
+                if(ret.msgcode === 100000){
                     //重置密码成功
                     api.toast({
                         msg: '重置密码成功',
