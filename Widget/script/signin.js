@@ -200,8 +200,8 @@ apiready = function(){
                 if(ret.msgcode === 100000){
                     //重置密码成功
                     api.toast({
-                        msg: '',
-                        duration: 2000,
+                        msg: '重置密码成功，请登录',
+                        duration: 4000,
                         location: 'top'
                     });
                     //因为是模态，没有无法刷新页面，将所有Input值置为空
